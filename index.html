@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FANUC 机器人专家 VC</title>
+    <!-- 在样式之前定好主题，避免刷新时闪一下白/黑 -->
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('vc_theme');
+            document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+        } catch (e) {}
+    })();
+    </script>
+    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-emoji">VC</span>
+                <span>智能助手</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-body">
+            <button class="new-chat-btn" id="newChatBtn">
+                <i class="fas fa-plus"></i> 新建对话
+            </button>
+            <div class="chat-history" id="chatHistory">
+                <!-- 历史对话将由JS动态生成 -->
+            </div>
+
+            <!-- 知识库区域 -->
+            <div class="knowledge-section">
+                <div class="knowledge-header" id="knowledgeToggle">
+                    <span><i class="fas fa-book"></i> 知识库</span>
+                    <span class="knowledge-toggle-icon" id="knowledgeToggleIcon">▶</span>
+                </div>
+                <div class="knowledge-body" id="knowledgeBody" style="display: none;">
+                    <button class="upload-btn" id="uploadBtn">
+                        <i class="fas fa-file-arrow-up"></i> 上传文件（PDF/Word/TXT/MD）
+                    </button>
+                    <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.txt,.md" multiple style="display:none">
+                    <div class="knowledge-files" id="knowledgeFiles">
+                        <!-- 已上传文件列表 -->
+                    </div>
+                    <div class="knowledge-status" id="knowledgeStatus">
+                        <i class="fas fa-circle-info"></i> 上传文件后，对话时自动参考知识库内容
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-info">
+                <i class="fas fa-lock"></i>
+                <span>数据安全加密</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <main class="main-content" id="mainContent">
+        <!-- 顶部导航 -->
+        <header class="main-header">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="header-title">
+                <span class="header-emoji"><i class="fas fa-robot"></i></span>
+                <h1>FANUC 机器人专家</h1>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn" id="settingsBtn" title="设置">
+                    <i class="fas fa-gear"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 聊天容器 -->
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h2>FANUC 机器人专家 VC</h2>
+                <p>发那科工业机器人高级工程师，15年现场经验，随时为你解决技术难题</p>
+                <div class="suggestion-chips">
+                    <button class="chip" data-prompt="SRVO-012报警怎么处理">
+                        SRVO-012 报警处理
+                    </button>
+                    <button class="chip" data-prompt="发那科R-2000iC减速机更换步骤">
+                        R-2000iC 减速机更换
+                    </button>
+                    <button class="chip" data-prompt="如何配置ProfiNet通信">
+                        ProfiNet 通信配置
+                    </button>
+                    <button class="chip" data-prompt="机器人零点标定步骤">
+                        机器人零点标定
+                    </button>
+                </div>
+            </div>
+            <div class="messages" id="messages">
+                <!-- 消息将由JS动态生成 -->
+            </div>
+            <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span>正在生成回复…</span>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-area">
+            <div class="image-preview-bar" id="imagePreviewBar" style="display: none;"></div>
+            <div class="input-wrapper">
+                <button class="attach-btn" id="imageBtn" title="上传图片（支持粘贴/多选）">
+                    <i class="fas fa-image"></i>
+                </button>
+                <textarea
+                    id="userInput"
+                    placeholder="输入问题，Enter 发送，Shift + Enter 换行"
+                    rows="1"
+                    autocomplete="off"
+                ></textarea>
+                <button class="web-toggle" id="webToggle" title="联网搜索">
+                    <i class="fas fa-globe"></i>
+                </button>
+                <button class="send-btn" id="sendBtn" title="发送" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <input type="file" id="imageInput" accept="image/*" multiple style="display:none">
+            <p class="disclaimer">VC 提供参考信息，重要内容请核实后使用</p>
+        </div>
+    </main>
+
+    <!-- 设置面板 -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <h3>设置</h3>
+                <button class="close-settings" id="closeSettings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-label">主题</div>
+                <div class="theme-options">
+                    <button class="theme-option" data-theme-value="dark">
+                        <div class="theme-preview dark"></div>
+                        <div class="theme-name"><i class="fas fa-moon"></i> 暗色调</div>
+                    </button>
+                    <button class="theme-option" data-theme-value="light">
+                        <div class="theme-preview light"></div>
+                        <div class="theme-name"><i class="fas fa-sun"></i> 亮色调</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/script.js?v=5"></script>
+</body>
+</html>
